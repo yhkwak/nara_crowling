@@ -1,0 +1,19 @@
+{
+  "name": "nara-crowling",
+  "version": "0.1.0",
+  "description": "정부지원사업/나라장터/R&D 공공데이터 자동 수집기",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "fetch:bizinfo": "tsx scripts/fetch_bizinfo.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
