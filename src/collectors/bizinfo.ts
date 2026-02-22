@@ -10,27 +10,33 @@ const API_URL = "https://www.bizinfo.go.kr/uss/rss/bizinfoApi.do";
 
 interface FetchOptions {
   apiKey: string;
-  pageNo?: number;
-  numOfRows?: number;
+  pageIndex?: number;
+  pageUnit?: number;
   keyword?: string;
+  hashtags?: string;
 }
 
 /**
  * 기업마당 API 한 페이지 호출
+ * - 파라미터: crtfcKey(필수), dataType, pageIndex, pageUnit, keyword, hashtags
+ * - 응답: { "jsonArray": [ {...}, ... ] }
  */
 async function fetchPage(opts: FetchOptions): Promise<BizinfoRawItem[]> {
   const params = new URLSearchParams({
     crtfcKey: opts.apiKey,
     dataType: "json",
-    pageNo: String(opts.pageNo ?? 1),
-    numOfRows: String(opts.numOfRows ?? 100),
+    pageIndex: String(opts.pageIndex ?? 1),
+    pageUnit: String(opts.pageUnit ?? 100),
   });
   if (opts.keyword) {
     params.set("keyword", opts.keyword);
   }
+  if (opts.hashtags) {
+    params.set("hashtags", opts.hashtags);
+  }
 
   const url = `${API_URL}?${params.toString()}`;
-  logger.info(`API 호출: page=${opts.pageNo ?? 1}, rows=${opts.numOfRows ?? 100}`);
+  logger.info(`API 호출: pageIndex=${opts.pageIndex ?? 1}, pageUnit=${opts.pageUnit ?? 100}`);
 
   const res = await fetch(url);
   if (!res.ok) {
@@ -39,13 +45,17 @@ async function fetchPage(opts: FetchOptions): Promise<BizinfoRawItem[]> {
 
   const json = await res.json();
 
-  // 기업마당 API 응답 구조: jsonArray 또는 items 또는 item 배열
-  const items: BizinfoRawItem[] =
-    json?.jsonArray ?? json?.items ?? json?.item ?? json?.response?.body?.items ?? [];
+  // 기업마당 API 응답 구조: { "jsonArray": [...] }
+  // 단일 객체인 경우 배열로 감싸기
+  let items: BizinfoRawItem[] = json?.jsonArray ?? [];
 
   if (!Array.isArray(items)) {
-    logger.warn("API 응답에서 배열을 찾을 수 없습니다. 응답 키:", Object.keys(json));
-    return [];
+    if (typeof items === "object" && items !== null) {
+      items = [items as BizinfoRawItem];
+    } else {
+      logger.warn("API 응답에서 jsonArray를 찾을 수 없습니다. 응답 키:", Object.keys(json));
+      return [];
+    }
   }
 
   return items;
@@ -68,12 +78,12 @@ function refineItem(item: BizinfoRawItem): SupportProgramRow | null {
   const title = item.title ?? item.pblancNm ?? "";
   if (!title) return null;
 
-  // 신청기간 파싱: "2025-01-01~2025-03-31" 형태
+  // 신청기간 파싱: "2025.01.01~2025.03.31" 또는 "2025-01-01~2025-03-31"
   let applyStart: string | null = null;
   let applyEnd: string | null = null;
-  const period = item.reqstBeginEndDe ?? "";
+  const period = item.reqstBeginEndDe ?? item.reqstDt ?? "";
   if (period.includes("~")) {
-    const [s, e] = period.split("~").map((d) => d.trim());
+    const [s, e] = period.split("~").map((d) => d.trim().replace(/\./g, "-"));
     applyStart = s || null;
     applyEnd = e || null;
   }
@@ -87,7 +97,7 @@ function refineItem(item: BizinfoRawItem): SupportProgramRow | null {
     agency: item.jrsdInsttNm ?? item.author ?? null,
     executor: item.excInsttNm ?? null,
     target: item.trgetNm ?? null,
-    summary: item.bsnsSumryCn ?? null,
+    summary: item.bsnsSumryCn ?? item.description ?? null,
     apply_start: applyStart,
     apply_end: applyEnd,
     detail_url: item.link ?? item.pblancUrl ?? null,
@@ -116,14 +126,14 @@ export async function collectBizinfo(apiKey: string): Promise<void> {
   let totalSaved = 0;
 
   try {
-    let pageNo = 1;
-    const numOfRows = 100;
+    let pageIndex = 1;
+    const pageUnit = 100;
     let hasMore = true;
 
     while (hasMore) {
-      const items = await fetchPage({ apiKey, pageNo, numOfRows });
+      const items = await fetchPage({ apiKey, pageIndex, pageUnit });
       totalFetched += items.length;
-      logger.info(`페이지 ${pageNo}: ${items.length}건 수신`);
+      logger.info(`페이지 ${pageIndex}: ${items.length}건 수신`);
 
       if (items.length === 0) {
         hasMore = false;
@@ -173,10 +183,10 @@ export async function collectBizinfo(apiKey: string): Promise<void> {
       }
 
       // 받은 건수가 요청한 건수보다 적으면 마지막 페이지
-      if (items.length < numOfRows) {
+      if (items.length < pageUnit) {
         hasMore = false;
       } else {
-        pageNo++;
+        pageIndex++;
       }
     }
 

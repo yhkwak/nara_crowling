@@ -10,17 +10,20 @@ export interface BizinfoRawItem {
   link?: string;
   pblancUrl?: string;
   jrsdInsttNm?: string; // 소관기관
+  author?: string; // 소관기관 (별칭)
   excInsttNm?: string; // 수행기관
   rcptInsttNm?: string; // 접수기관
   pldirSportRealmLclasCodeNm?: string; // 분야(대분류)
   lcategory?: string; // 분야(대분류) - 별칭
-  reqstBeginEndDe?: string; // 신청기간
+  reqstBeginEndDe?: string; // 신청기간 "2025.01.01~2025.03.31"
+  reqstDt?: string; // 신청기간 (별칭)
   creatPnttm?: string; // 등록일
-  pubDate?: string; // 등록일 - 별칭
+  pubDate?: string; // 등록일 (별칭)
   trgetNm?: string; // 지원대상
   bsnsSumryCn?: string; // 사업요약
+  description?: string; // 사업설명 (별칭)
   hashtags?: string; // 해시태그
-  author?: string; // 작성기관
+  hashTags?: string; // 해시태그 (별칭)
   [key: string]: unknown; // 알 수 없는 추가 필드 허용
 }
 
