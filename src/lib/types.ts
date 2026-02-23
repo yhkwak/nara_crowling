@@ -40,22 +40,54 @@ export interface RawBizinfoRow {
  * support_programs 테이블에 저장될 정제 데이터
  */
 export interface SupportProgramRow {
-  source: string; // 'bizinfo'
-  source_id: string; // pblancId
+  source: DataSource;
+  source_id: string;
   title: string;
   category: string | null;
-  agency: string | null; // 소관기관
-  executor: string | null; // 수행기관
-  target: string | null; // 지원대상
+  agency: string | null;
+  executor: string | null;
+  target: string | null;
   summary: string | null;
   apply_start: string | null;
   apply_end: string | null;
   detail_url: string | null;
   published_at: string | null;
-  raw_json: BizinfoRawItem;
+  raw_json: Record<string, unknown>;
 }
 
 /**
  * 데이터 소스 식별자 (확장 시 추가)
  */
 export type DataSource = "bizinfo" | "g2b" | "ntis";
+
+// ─── 공통 Fetcher 인터페이스 ───────────────────────────
+
+/**
+ * 모든 수집기가 구현해야 할 공통 인터페이스.
+ * collector.ts의 runCollector()가 이 인터페이스만으로 동작한다.
+ */
+export interface Fetcher {
+  /** 데이터 소스 식별자 */
+  readonly source: DataSource;
+
+  /** raw 데이터를 저장할 Supabase 테이블명 (예: "raw_bizinfo") */
+  readonly rawTable: string;
+
+  /** 한 페이지 분량의 raw 아이템을 API에서 가져온다 */
+  fetchPage(page: number, pageSize: number): Promise<unknown[]>;
+
+  /** raw 아이템에서 source_id를 추출한다 */
+  getSourceId(item: unknown): string;
+
+  /** raw 아이템 → SupportProgramRow 정제. 변환 불가하면 null */
+  refine(item: unknown): SupportProgramRow | null;
+}
+
+/**
+ * runCollector() 실행 결과
+ */
+export interface CollectResult {
+  source: DataSource;
+  totalFetched: number;
+  totalSaved: number;
+}

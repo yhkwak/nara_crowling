@@ -6,7 +6,8 @@
  *   npm run fetch:bizinfo
  */
 import "dotenv/config";
-import { collectBizinfo } from "../src/collectors/bizinfo.js";
+import { createBizinfoFetcher } from "../src/services/bizinfoFetcher.js";
+import { runCollector } from "../src/lib/collector.js";
 import { logger } from "../src/lib/logger.js";
 
 async function main() {
@@ -19,7 +20,8 @@ async function main() {
   }
 
   logger.info("=== 기업마당 지원사업정보 수집 시작 ===");
-  await collectBizinfo(apiKey);
+  const fetcher = createBizinfoFetcher(apiKey);
+  await runCollector(fetcher);
   logger.info("=== 기업마당 지원사업정보 수집 종료 ===");
 }
 

@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "fetch:bizinfo": "tsx scripts/fetch_bizinfo.ts"
+    "fetch:bizinfo": "tsx scripts/fetch_bizinfo.ts",
+    "fetch:all": "tsx scripts/fetch_all.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0",
