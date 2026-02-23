@@ -35,19 +35,37 @@ export interface BizinfoRawItem {
 }
 
 /**
- * TODO: 나라장터 API 원본 응답 타입
- * 조달청 나라장터 입찰공고정보서비스 기준 예상 필드:
- *   bidNtceNo    — 입찰공고번호 (source_id)
- *   bidNtceNm    — 입찰공고명 (title)
- *   ntceInsttNm  — 공고기관명 (agency)
- *   dminsttNm    — 수요기관명 (executor)
- *   bidNtceDt    — 입찰공고일시 (published_at)
- *   bidClseDt    — 입찰마감일시 (apply_end)
- *   ntceKindNm   — 공고종류 (category)
- *   presmptPrce  — 추정가격
- *   dtilPgmUrl   — 상세페이지 URL (detail_url)
+ * 나라장터 공공데이터개방표준서비스 입찰공고 원본 응답 타입.
+ * API: getDataSetOpnStdBidPblancInfo
+ * 응답 경로: response.body.items[n]
  */
 export interface PpsRawItem {
+  bidNtceNo?: string;              // 입찰공고번호 (PK 1)
+  bidNtceOrd?: string;             // 입찰공고차수 (PK 2)
+  reNtceYn?: string;               // 재공고여부 (Y/N)
+  bidNtceNm?: string;              // 입찰공고명
+  ntceInsttNm?: string;            // 공고기관명
+  ntceInsttCd?: string;            // 공고기관코드
+  dminsttNm?: string;              // 수요기관명
+  dminsttCd?: string;              // 수요기관코드
+  bidNtceDt?: string;              // 입찰공고일시 "2025-02-20 10:00:00"
+  bidClseDt?: string;              // 입찰마감일시
+  opengDt?: string;                // 개찰일시
+  bidBeginDt?: string;             // 입찰개시일시
+  ntceKindNm?: string;             // 공고종류명
+  cntrctCnclsMthdNm?: string;      // 계약체결방법명
+  bidQlfctRgstDt?: string;         // 입찰참가자격등록마감일시
+  presmptPrce?: string;            // 추정가격
+  asignBdgtAmt?: string;           // 배정예산금액
+  bssamt?: string;                 // 기초금액
+  dtilPrdctClsfcNoNm?: string;     // 세부품명분류번호명
+  bidNtceDtlUrl?: string;          // 입찰공고상세URL
+  rgstDt?: string;                 // 등록일시
+  bfSpecRgstNo?: string;           // 사전규격등록번호
+  sucsfbidMthdNm?: string;         // 낙찰방법명
+  intrntnlDivNm?: string;          // 국제구분명
+  prtcptLmtRgnNm?: string;         // 참가제한지역명
+  bidPrdctNo?: string;             // 입찰분류번호
   [key: string]: unknown;
 }
 

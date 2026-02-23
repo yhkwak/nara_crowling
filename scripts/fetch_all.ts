@@ -9,7 +9,7 @@
  */
 import "dotenv/config";
 import { createBizinfoFetcher } from "../src/services/bizinfoFetcher.js";
-// import { createPpsFetcher } from "../src/services/ppsFetcher.js";
+import { createPpsFetcher } from "../src/services/ppsFetcher.js";
 // import { createRdFetcher } from "../src/services/rdFetcher.js";
 import { runCollector } from "../src/lib/collector.js";
 import { logger } from "../src/lib/logger.js";
@@ -26,13 +26,13 @@ async function main() {
     logger.warn("BIZINFO_API_KEY 미설정 → 기업마당 수집 건너뜀");
   }
 
-  // ── 나라장터 (TODO: 구현 후 주석 해제) ──
-  // const ppsKey = process.env.PPS_API_KEY;
-  // if (ppsKey) {
-  //   fetchers.push(createPpsFetcher(ppsKey));
-  // } else {
-  //   logger.warn("PPS_API_KEY 미설정 → 나라장터 수집 건너뜀");
-  // }
+  // ── 나라장터 ──
+  const ppsKey = process.env.PPS_API_KEY;
+  if (ppsKey) {
+    fetchers.push(createPpsFetcher(ppsKey));
+  } else {
+    logger.warn("PPS_API_KEY 미설정 → 나라장터 수집 건너뜀");
+  }
 
   // ── 국가R&D (TODO: 구현 후 주석 해제) ──
   // const rdKey = process.env.RD_API_KEY;

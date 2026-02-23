@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "fetch:bizinfo": "tsx scripts/fetch_bizinfo.ts",
+    "fetch:pps": "tsx scripts/fetch_pps.ts",
     "fetch:all": "tsx scripts/fetch_all.ts"
   },
   "dependencies": {
